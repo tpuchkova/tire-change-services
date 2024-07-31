@@ -1,0 +1,13 @@
+test: test value
+workshops-info-list:
+  workshops:
+    manchester:
+      name: "manchester"
+      url: "http://localhost:9004/"
+      carTypes: "passenger car, truck"
+      address: "14 Bury New Rd"
+    london:
+      name: "london"
+      url: "http://localhost:9003/"
+      carTypes: "passenger car"
+      address: "1A Gunton Rd"
