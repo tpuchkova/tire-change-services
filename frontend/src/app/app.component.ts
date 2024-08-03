@@ -1,5 +1,12 @@
 import { Component } from '@angular/core';
-import {MatTable, MatTableModule} from '@angular/material/table';
+import {
+  MatCell, MatCellDef,
+  MatColumnDef,
+  MatHeaderCell, MatHeaderCellDef,
+  MatHeaderRow, MatHeaderRowDef,
+  MatRow, MatRowDef,
+  MatTable,
+} from '@angular/material/table';
 
 export interface Element {
   date: string;
@@ -19,7 +26,16 @@ const ELEMENT_DATA: Element[] = [
   templateUrl: './app.component.html',
   standalone: true,
   imports: [
-    MatTable
+    MatTable,
+    MatHeaderCell,
+    MatCell,
+    MatHeaderRow,
+    MatRow,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatCellDef,
+    MatHeaderRowDef,
+    MatRowDef
   ],
   styleUrls: ['./app.component.css']
 })
