@@ -7,6 +7,12 @@ import {
   MatRow, MatRowDef,
   MatTable,
 } from '@angular/material/table';
+import {MatFormField} from "@angular/material/form-field";
+import {MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker} from "@angular/material/datepicker";
+import {provideNativeDateAdapter} from '@angular/material/core';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {DateRangePickerComponent} from "./components/date-range-picker/date-range-picker.component";
 
 export interface Element {
   date: string;
@@ -35,8 +41,16 @@ const ELEMENT_DATA: Element[] = [
     MatHeaderCellDef,
     MatCellDef,
     MatHeaderRowDef,
-    MatRowDef
+    MatRowDef,
+    MatFormField,
+    MatDateRangeInput,
+    MatDatepickerToggle,
+    MatDateRangePicker,
+    MatFormFieldModule,
+    MatDatepickerModule,
+    DateRangePickerComponent,
   ],
+  providers: [provideNativeDateAdapter()],
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
