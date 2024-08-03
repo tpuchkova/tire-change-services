@@ -1,1 +1,49 @@
-<app-get-available-times></app-get-available-times>>
+<div class="container">
+  <!-- Top Section -->
+  <div class="top-section">
+    <input type="text" placeholder="Input 1" />
+    <input type="text" placeholder="Input 2" />
+    <button (click)="onSearch()">Search</button>
+  </div>
+
+  <!-- Bottom Section -->
+  <div class="bottom-section">
+    <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <!-- Date Column -->
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef> Date </th>
+        <td mat-cell *matCellDef="let element"> {{element.date}} </td>
+      </ng-container>
+
+      <!-- WS Name Column -->
+      <ng-container matColumnDef="wsName">
+        <th mat-header-cell *matHeaderCellDef> WS name </th>
+        <td mat-cell *matCellDef="let element"> {{element.wsName}} </td>
+      </ng-container>
+
+      <!-- CarType Column -->
+      <ng-container matColumnDef="carType">
+        <th mat-header-cell *matHeaderCellDef> CarType </th>
+        <td mat-cell *matCellDef="let element"> {{element.carType}} </td>
+      </ng-container>
+
+      <!-- Address Column -->
+      <ng-container matColumnDef="address">
+        <th mat-header-cell *matHeaderCellDef> Address </th>
+        <td mat-cell *matCellDef="let element"> {{element.address}} </td>
+      </ng-container>
+
+      <!-- Book Button Column -->
+      <ng-container matColumnDef="book">
+        <th mat-header-cell *matHeaderCellDef> Book </th>
+        <td mat-cell *matCellDef="let element">
+          <button (click)="onBook()">Book</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </mat-table>
+  </div>
+</div>
+
