@@ -4,7 +4,7 @@
     <date-range-picker></date-range-picker>
     <mat-form-field>
       <mat-label>Workshop name</mat-label>
-      <mat-select>
+      <mat-select [(value)]="selectedWorkshop">
         @for (workshopName of workshopNames; track workshopName) {
           <mat-option [value]="workshopName.value">{{workshopName.viewValue}}</mat-option>
         }
@@ -12,7 +12,7 @@
     </mat-form-field>
     <mat-form-field>
       <mat-label>Car type</mat-label>
-      <mat-select>
+      <mat-select [(value)]="selectedWorkshop">
         @for (carType of carTypes; track carType) {
           <mat-option [value]="carType.value">{{carType.viewValue}}</mat-option>
         }
@@ -23,7 +23,7 @@
 
   <!-- Bottom Section -->
   <div class="bottom-section">
-    <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <mat-table [dataSource]="data" class="mat-elevation-z8">
       <!-- Date Column -->
       <ng-container matColumnDef="date">
         <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>

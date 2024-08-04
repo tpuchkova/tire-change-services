@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, Input, Output} from '@angular/core';
 import {
   MatCell, MatCellDef,
   MatColumnDef,
@@ -14,6 +14,8 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {DateRangePickerComponent} from "./components/date-range-picker/date-range-picker.component";
 import {MatSelect} from "@angular/material/select";
+import {HttpClient} from "@angular/common/http";
+import {Observable} from "rxjs";
 
 export interface Element {
   date: string;
@@ -68,7 +70,12 @@ const ELEMENT_DATA: Element[] = [
 })
 export class AppComponent {
   displayedColumns: string[] = ['date', 'wsName', 'carType', 'address', 'book'];
-  dataSource = ELEMENT_DATA;
+  //data: AvailableTime[] = [];
+  data: Element[] = ELEMENT_DATA;
+
+  @Input()
+  selectedWorkshop: String = "all";
+
   workshopNames: WorkshopName[] = [
     {value: 'all', viewValue: 'All'},
     {value: 'london', viewValue: 'London'},
@@ -89,4 +96,26 @@ export class AppComponent {
   }
 }
 
+export interface AvailableTime {
+  time: string;
+  workshopName: string;
+  address: string;
+  carType: string;
+}
 
+export interface AvailableTimes {
+  items: AvailableTime[];
+}
+
+// export class ExampleHttpDatabase {
+//   constructor(private _httpClient: HttpClient) {}
+//
+//   getRepoIssues(): Observable<AvailableTimes> {
+//     const href = 'http://localhost:9090/getAvailableTimes';
+//     const requestUrl = `${href}?q=repo:angular/components&sort=${sort}&order=${order}&page=${
+//       page + 1
+//     }`;
+//
+//     return this._httpClient.get<AvailableTimes>(requestUrl);
+//   }
+// }
