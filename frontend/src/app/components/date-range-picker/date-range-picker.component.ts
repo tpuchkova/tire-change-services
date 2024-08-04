@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, Output} from '@angular/core';
 import {provideNativeDateAdapter} from '@angular/material/core';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -12,4 +12,15 @@ import {MatFormFieldModule} from '@angular/material/form-field';
   providers: [provideNativeDateAdapter()],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DateRangePickerComponent {}
+export class DateRangePickerComponent {
+  // @Output()
+  // startDate: String = "";
+  // @Output()
+  // endDate: String = "";
+  @Input()
+  dateRangeChangeCallback = (startDate: String, endDateString: String) => {}
+
+  onDateRangeChange(dateRangeStart: HTMLInputElement, dateRangeEnd: HTMLInputElement) {
+    this.dateRangeChangeCallback(dateRangeStart.value, dateRangeEnd.value);
+  }
+}

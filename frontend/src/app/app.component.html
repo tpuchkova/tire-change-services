@@ -1,7 +1,7 @@
 <div class="container">
   <!-- Top Section -->
   <div class="top-section">
-    <date-range-picker></date-range-picker>
+    <date-range-picker [dateRangeChangeCallback]="onDateRangeChange"></date-range-picker>
     <mat-form-field>
       <mat-label>Workshop name</mat-label>
       <mat-select [(value)]="selectedWorkshop">

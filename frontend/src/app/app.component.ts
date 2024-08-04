@@ -76,6 +76,10 @@ export class AppComponent {
   @Input()
   selectedWorkshop: String = "all";
 
+  startDate: String = "";
+  endDate: String = "";
+
+
   workshopNames: WorkshopName[] = [
     {value: 'all', viewValue: 'All'},
     {value: 'london', viewValue: 'London'},
@@ -93,6 +97,11 @@ export class AppComponent {
 
   onBook() {
     console.log('Current time:', new Date().toLocaleTimeString());
+  }
+  onDateRangeChange(startDate: String, endDate: String) {
+    this.startDate = startDate;
+    this.endDate = endDate;
+    console.log("startDate " + startDate + "; endDate " + endDate);
   }
 }
 
