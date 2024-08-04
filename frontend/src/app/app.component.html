@@ -2,8 +2,22 @@
   <!-- Top Section -->
   <div class="top-section">
     <date-range-picker></date-range-picker>
-    <input type="text" placeholder="Input 1" />
-    <input type="text" placeholder="Input 2" />
+    <mat-form-field>
+      <mat-label>Workshop name</mat-label>
+      <mat-select>
+        @for (workshopName of workshopNames; track workshopName) {
+          <mat-option [value]="workshopName.value">{{workshopName.viewValue}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Car type</mat-label>
+      <mat-select>
+        @for (carType of carTypes; track carType) {
+          <mat-option [value]="carType.value">{{carType.viewValue}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
     <button (click)="onSearch()">Search</button>
   </div>
 

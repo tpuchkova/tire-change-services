@@ -9,16 +9,27 @@ import {
 } from '@angular/material/table';
 import {MatFormField} from "@angular/material/form-field";
 import {MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker} from "@angular/material/datepicker";
-import {provideNativeDateAdapter} from '@angular/material/core';
+import {MatOption, provideNativeDateAdapter} from '@angular/material/core';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {DateRangePickerComponent} from "./components/date-range-picker/date-range-picker.component";
+import {MatSelect} from "@angular/material/select";
 
 export interface Element {
   date: string;
   wsName: string;
   carType: string;
   address: string;
+}
+
+interface WorkshopName {
+  value: string;
+  viewValue: string;
+}
+
+interface CarType {
+  value: string;
+  viewValue: string;
 }
 
 const ELEMENT_DATA: Element[] = [
@@ -49,6 +60,8 @@ const ELEMENT_DATA: Element[] = [
     MatFormFieldModule,
     MatDatepickerModule,
     DateRangePickerComponent,
+    MatSelect,
+    MatOption,
   ],
   providers: [provideNativeDateAdapter()],
   styleUrls: ['./app.component.css']
@@ -56,6 +69,16 @@ const ELEMENT_DATA: Element[] = [
 export class AppComponent {
   displayedColumns: string[] = ['date', 'wsName', 'carType', 'address', 'book'];
   dataSource = ELEMENT_DATA;
+  workshopNames: WorkshopName[] = [
+    {value: 'all', viewValue: 'All'},
+    {value: 'london', viewValue: 'London'},
+    {value: 'manchester', viewValue: 'Manchester'},
+  ];
+  carTypes: CarType[] = [
+    {value: 'all', viewValue: 'All'},
+    {value: 'passenger car', viewValue: 'Passenger car'},
+    {value: 'truck', viewValue: 'Truck'},
+  ];
 
   onSearch() {
     // Implement search functionality here
@@ -65,4 +88,5 @@ export class AppComponent {
     console.log('Current time:', new Date().toLocaleTimeString());
   }
 }
+
 
