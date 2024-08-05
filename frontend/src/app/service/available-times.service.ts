@@ -11,8 +11,8 @@ export class AvailableTimesService {
 
   getAvailableTimes(dateFrom: string, dateUntil: string, workshopName: string, carType: string): Observable<AvailableTime[]>{
     if (!dateFrom || !dateUntil){
-      dateFrom = "2006-01-02";
-      dateUntil = "2100-01-02"
+      dateFrom = "2023-01-01";
+      dateUntil = "2100-01-01"
     }
     let params = new HttpParams()
 

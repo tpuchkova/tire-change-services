@@ -76,6 +76,7 @@ export class AppComponent implements AfterViewInit {
   selectedWorkshop: string = "all";
   @Input()
   selectedCarType: string = "all";
+
   startDate: string = "";
   endDate: string = "";
 
