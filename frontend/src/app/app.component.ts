@@ -1,4 +1,4 @@
-import {Component, Input, Output} from '@angular/core';
+import {AfterViewInit, Component, Input} from '@angular/core';
 import {
   MatCell, MatCellDef,
   MatColumnDef,
@@ -15,14 +15,9 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {DateRangePickerComponent} from "./components/date-range-picker/date-range-picker.component";
 import {MatSelect} from "@angular/material/select";
 import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
-
-export interface Element {
-  date: string;
-  wsName: string;
-  carType: string;
-  address: string;
-}
+import {merge, of as observableOf} from 'rxjs';
+import {catchError, map, startWith, switchMap} from 'rxjs/operators';
+import {AvailableTime, AvailableTimesService} from "./service/available-times.service";
 
 interface WorkshopName {
   value: string;
@@ -33,12 +28,6 @@ interface CarType {
   value: string;
   viewValue: string;
 }
-
-const ELEMENT_DATA: Element[] = [
-  { date: '2023-01-01', wsName: 'WS1', carType: 'Sedan', address: '123 Main St' },
-  { date: '2023-01-02', wsName: 'WS2', carType: 'SUV', address: '456 Oak St' },
-  // Add more data as needed
-];
 
 @Component({
   selector: 'app-root',
@@ -68,16 +57,27 @@ const ELEMENT_DATA: Element[] = [
   providers: [provideNativeDateAdapter()],
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  displayedColumns: string[] = ['date', 'wsName', 'carType', 'address', 'book'];
-  //data: AvailableTime[] = [];
-  data: Element[] = ELEMENT_DATA;
+export class AppComponent implements AfterViewInit {
+  displayedColumns: string[] = ['time', 'workshopName', 'carType', 'address', 'book'];
+
+  availableTimesService: AvailableTimesService | null | undefined
+  data: AvailableTime[] = [];
+
+  isLoadingResults = true;
+  isRateLimitReached = false;
+
+  constructor(private _httpClient: HttpClient) { }
+
+  ngAfterViewInit() {
+    this.loadAvailableTimes();
+  }
 
   @Input()
-  selectedWorkshop: String = "all";
-
-  startDate: String = "";
-  endDate: String = "";
+  selectedWorkshop: string = "all";
+  @Input()
+  selectedCarType: string = "all";
+  startDate: string = "";
+  endDate: string = "";
 
 
   workshopNames: WorkshopName[] = [
@@ -91,40 +91,47 @@ export class AppComponent {
     {value: 'truck', viewValue: 'Truck'},
   ];
 
-  onSearch() {
-    // Implement search functionality here
-  }
-
-  onBook() {
-    console.log('Current time:', new Date().toLocaleTimeString());
-  }
-  onDateRangeChange(startDate: String, endDate: String) {
+  onDateRangeChange(startDate: string, endDate: string) {
     this.startDate = startDate;
     this.endDate = endDate;
-    console.log("startDate " + startDate + "; endDate " + endDate);
+    console.log("startDate " + this.startDate + "; endDate " + endDate);
+  }
+
+  onSearch() {
+    this.loadAvailableTimes();
+  }
+
+  onBook(id: string) {
+    //dialog.Open
+    console.log('Current time:', new Date().toLocaleTimeString());
+  }
+
+  private loadAvailableTimes() {
+    this.availableTimesService = new AvailableTimesService(this._httpClient);
+
+    merge()
+      .pipe(
+        startWith({}),
+        switchMap(() => {
+          this.isLoadingResults = true;
+          return this.availableTimesService!.getAvailableTimes(
+            this.startDate,
+            this.endDate,
+            this.selectedWorkshop,
+            this.selectedCarType
+          ).pipe(catchError(() => observableOf(null)));
+        }),
+        map(data => {
+          this.isLoadingResults = false;
+          this.isRateLimitReached = data === null;
+
+          if (data === null) {
+            return [];
+          }
+
+          return data;
+        }),
+      )
+      .subscribe(data => (this.data = data));
   }
 }
-
-export interface AvailableTime {
-  time: string;
-  workshopName: string;
-  address: string;
-  carType: string;
-}
-
-export interface AvailableTimes {
-  items: AvailableTime[];
-}
-
-// export class ExampleHttpDatabase {
-//   constructor(private _httpClient: HttpClient) {}
-//
-//   getRepoIssues(): Observable<AvailableTimes> {
-//     const href = 'http://localhost:9090/getAvailableTimes';
-//     const requestUrl = `${href}?q=repo:angular/components&sort=${sort}&order=${order}&page=${
-//       page + 1
-//     }`;
-//
-//     return this._httpClient.get<AvailableTimes>(requestUrl);
-//   }
-// }

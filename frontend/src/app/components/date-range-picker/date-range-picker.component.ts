@@ -3,7 +3,6 @@ import {provideNativeDateAdapter} from '@angular/material/core';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatFormFieldModule} from '@angular/material/form-field';
 
-/** @title Basic date range picker */
 @Component({
   selector: 'date-range-picker',
   templateUrl: 'date-range-picker.component.html',
@@ -18,7 +17,7 @@ export class DateRangePickerComponent {
   // @Output()
   // endDate: String = "";
   @Input()
-  dateRangeChangeCallback = (startDate: String, endDateString: String) => {}
+  dateRangeChangeCallback = (startDate: string, endDate: string) => {}
 
   onDateRangeChange(dateRangeStart: HTMLInputElement, dateRangeEnd: HTMLInputElement) {
     this.dateRangeChangeCallback(dateRangeStart.value, dateRangeEnd.value);

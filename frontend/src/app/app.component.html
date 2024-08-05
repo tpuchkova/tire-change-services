@@ -1,5 +1,4 @@
 <div class="container">
-  <!-- Top Section -->
   <div class="top-section">
     <date-range-picker [dateRangeChangeCallback]="onDateRangeChange"></date-range-picker>
     <mat-form-field>
@@ -12,7 +11,7 @@
     </mat-form-field>
     <mat-form-field>
       <mat-label>Car type</mat-label>
-      <mat-select [(value)]="selectedWorkshop">
+      <mat-select [(value)]="selectedCarType">
         @for (carType of carTypes; track carType) {
           <mat-option [value]="carType.value">{{carType.viewValue}}</mat-option>
         }
@@ -21,25 +20,21 @@
     <button (click)="onSearch()">Search</button>
   </div>
 
-  <!-- Bottom Section -->
   <div class="bottom-section">
     <mat-table [dataSource]="data" class="mat-elevation-z8">
-      <!-- Date Column -->
-      <ng-container matColumnDef="date">
-        <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
-        <mat-cell *matCellDef="let element"> {{element.date}} </mat-cell>
+      <ng-container matColumnDef="time">
+        <mat-header-cell *matHeaderCellDef> Time </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.time}} </mat-cell>
       </ng-container>
 
-      <!-- WS Name Column -->
-      <ng-container matColumnDef="wsName">
-        <mat-header-cell *matHeaderCellDef> WS name </mat-header-cell>
-        <mat-cell *matCellDef="let element"> {{element.wsName}} </mat-cell>
+      <ng-container matColumnDef="workshopName">
+        <mat-header-cell *matHeaderCellDef> Workshop name </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.workshopName}} </mat-cell>
       </ng-container>
 
-      <!-- CarType Column -->
       <ng-container matColumnDef="carType">
-        <mat-header-cell *matHeaderCellDef> CarType </mat-header-cell>
-        <mat-cell *matCellDef="let element"> {{element.carType}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef> Car types </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.carTypes}} </mat-cell>
       </ng-container>
 
       <!-- Address Column -->
@@ -52,7 +47,7 @@
       <ng-container matColumnDef="book">
         <mat-header-cell *matHeaderCellDef> Book </mat-header-cell>
         <mat-cell *matCellDef="let element">
-          <button (click)="onBook()">Book</button>
+          <button (click)="onBook(element.id)">Book</button>
         </mat-cell>
       </ng-container>
 

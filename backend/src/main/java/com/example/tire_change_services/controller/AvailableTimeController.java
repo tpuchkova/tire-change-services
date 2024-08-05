@@ -10,6 +10,7 @@ import com.example.tire_change_services.service.WorkshopService;
 
 import java.util.List;
 
+@CrossOrigin("*")
 @RestController
 @RequiredArgsConstructor
 public class AvailableTimeController {
