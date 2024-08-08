@@ -64,16 +64,21 @@ public class LondonWorkshopTest {
                 WorkshopInfo.builder()
                         .url("correctUrl")
                         .name("london")
-                        .address("alksdfjlsdf")
-                        .carTypes("aklsdjfsdjf")
+                        .address("address")
+                        .carTypes("passenger car")
                 .build()));
 
         // when
         List<AvailableTime> availableTimes = londonWorkshop.getAvailableTimes("2024-07-26", "2024-07-27", "london", "passenger car");
 
         // then
+
         assertNotNull(availableTimes);
-        // ... all asserts
+        assertEquals("68f2cacb-a591-4e6c-96af-2d4854372ce6", availableTimes.get(0).getId());
+        assertEquals("2024-07-11T11:00:00Z", availableTimes.get(0).getTime());
+        assertEquals("london", availableTimes.get(0).getWorkshopName());
+        assertEquals("address", availableTimes.get(0).getAddress());
+        assertEquals("passenger car", availableTimes.get(0).getCarTypes());
     }
 
     @Test

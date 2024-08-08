@@ -47,7 +47,7 @@
       <ng-container matColumnDef="book">
         <mat-header-cell *matHeaderCellDef> Book </mat-header-cell>
         <mat-cell *matCellDef="let element">
-          <button (click)="onBook(element.id)">Book</button>
+          <button (click)="onBook(element.id, element.workshopName)">Book</button>
         </mat-cell>
       </ng-container>
 

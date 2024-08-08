@@ -18,6 +18,8 @@ import {HttpClient} from "@angular/common/http";
 import {merge, of as observableOf} from 'rxjs';
 import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 import {AvailableTime, AvailableTimesService} from "./service/available-times.service";
+import {MatDialog} from "@angular/material/dialog";
+import {ContactDataDialog} from "./components/contact-data-dialog/contact-data-dialog.component";
 
 interface WorkshopName {
   value: string;
@@ -59,14 +61,12 @@ interface CarType {
 })
 export class AppComponent implements AfterViewInit {
   displayedColumns: string[] = ['time', 'workshopName', 'carType', 'address', 'book'];
-
-  availableTimesService: AvailableTimesService | null | undefined
   data: AvailableTime[] = [];
 
   isLoadingResults = true;
   isRateLimitReached = false;
 
-  constructor(private _httpClient: HttpClient) { }
+  constructor(private _httpClient: HttpClient, public dialog: MatDialog, private availableTimesService: AvailableTimesService) { }
 
   ngAfterViewInit() {
     this.loadAvailableTimes();
@@ -102,14 +102,18 @@ export class AppComponent implements AfterViewInit {
     this.loadAvailableTimes();
   }
 
-  onBook(id: string) {
-    //dialog.Open
-    console.log('Current time:', new Date().toLocaleTimeString());
+  onBook(id: string, workshopName: string) {
+    const dialogRef = this.dialog.open(ContactDataDialog);
+
+    dialogRef.afterClosed().subscribe(contactInformation => {
+      this.availableTimesService.sendBookRequest(id, contactInformation, workshopName)
+        .subscribe(availableTime => {console.log(availableTime)})
+    });
   }
 
-  private loadAvailableTimes() {
-    this.availableTimesService = new AvailableTimesService(this._httpClient);
 
+  private loadAvailableTimes() {
+    console.log("startDate " + this.startDate + "; endDate " + this.endDate);
     merge()
       .pipe(
         startWith({}),

@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>Enter your contact information</h2>
+<mat-dialog-content>
+  <mat-form-field>
+    <mat-label>Contact information</mat-label>
+    <input matInput [(ngModel)]="contactInformation">
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [mat-dialog-close]="contactInformation" cdkFocusInitial>Ok</button>
+</mat-dialog-actions>

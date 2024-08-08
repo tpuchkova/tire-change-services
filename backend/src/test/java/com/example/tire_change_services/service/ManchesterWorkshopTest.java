@@ -1,9 +1,11 @@
 package com.example.tire_change_services.service;
 
 import com.example.tire_change_services.config.WorkshopInfo;
+import com.example.tire_change_services.config.WorkshopsInfoList;
 import com.example.tire_change_services.model.AvailableTime;
 import com.example.tire_change_services.model.ContactInformationRequestBody;
 import com.google.gson.Gson;
+import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -23,20 +25,55 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ManchesterWorkshopTest {
+   private static final String CORRECT_RESPONSE_JSON = """
+       {
+        "id": 10,
+        "time": "2024-07-12T08:00:00Z",
+        "available": true
+    },
+""";
     @Mock
     private RestTemplate restTemplate;
 
     @Mock
-    private WorkshopInfo workshopInfo;  // Mock your WorkshopInfo class if necessary
+    private WorkshopsInfoList workshopsInfoList;
 
     @InjectMocks
-    private ManchesterWorkshop manchesterWorkshop;  // Replace with the actual service class containing getAvailableTimes
+    private ManchesterWorkshop manchesterWorkshop;
 
-    private Gson gson = new Gson();
+   // private Gson gson = new Gson();
 
-    @BeforeEach
-    public void setUp() {
-        when(workshopInfo.getUrl()).thenReturn("http://test-url.com");
+//    @BeforeEach
+//    public void setUp() {
+//        when(workshopInfo.getUrl()).thenReturn("http://test-url.com");
+//    }
+
+    @Test
+    void shouldSuccessfullyParseResponse() {
+        // given
+        mockRestTemplateGetForEntity(CORRECT_RESPONSE_JSON, HttpStatus.OK);
+
+        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("london",
+                WorkshopInfo.builder()
+                        .url("correctUrl")
+                        .name("manchester")
+                        .address("address")
+                        .carTypes("passenger car")
+                        .build()));
+
+        // when
+        List<AvailableTime> availableTimes = manchesterWorkshop.getAvailableTimes("2024-07-26", "2024-07-27", "manchester", "passenger car");
+
+        // then
+        assertNotNull(availableTimes);
+//        assertEquals("london", availableTimes.get(0).getWorkshopName());
+//        assertEquals("address", availableTimes.get(0).getAddress());
+//        assertEquals("passenger car", availableTimes.get(0).getCarTypes());
+    }
+
+    private void mockRestTemplateGetForEntity(String response, HttpStatus status) {
+        when(restTemplate.getForEntity(anyString(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(response, status));
     }
 
     @Test
