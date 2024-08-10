@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
+import moment from "moment/moment";
 
 @Injectable({
   providedIn: 'root'
@@ -9,16 +10,23 @@ export class AvailableTimesService {
 
   constructor(private _httpClient: HttpClient) {
   }
+  private formatDate(date: string) : string {
+    const dateMoment = moment(date, 'MM/DD/YYYY')
+    return dateMoment.format("YYYY-MM-DD")
+  }
 
   getAvailableTimes(dateFrom: string, dateUntil: string, workshopName: string, carType: string): Observable<AvailableTime[]> {
-    if (!dateFrom || !dateUntil) {
-      dateFrom = "2023-01-01";
-      dateUntil = "2100-01-01"
+    if (!dateFrom) {
+      dateFrom = "01/01/2023";
     }
+    if (!dateUntil) {
+      dateUntil = "01/01/2100";
+    }
+
     let params = new HttpParams()
 
-    params = params.append('from', dateFrom)
-    params = params.append('until', dateUntil)
+    params = params.append('from', this.formatDate(dateFrom))
+    params = params.append('until', this.formatDate(dateUntil))
 
     if (workshopName && workshopName != "all") {
       params = params.append('workshopName', workshopName)

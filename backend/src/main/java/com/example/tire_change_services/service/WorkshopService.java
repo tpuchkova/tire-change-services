@@ -41,7 +41,6 @@ public class WorkshopService {
             }
         }
 
-        //TODO: create filters not required
         ZonedDateTime fromDateTime = ZonedDateTime.parse(from + "T00:00:00Z");
         ZonedDateTime untilDateTime = ZonedDateTime.parse(until + "T23:59:59Z");
         List<AvailableTime> sortedFilteredTimes = availableTimes.stream()

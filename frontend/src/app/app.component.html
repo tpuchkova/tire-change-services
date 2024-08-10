@@ -1,6 +1,6 @@
 <div class="container">
   <div class="top-section">
-    <date-range-picker [dateRangeChangeCallback]="onDateRangeChange"></date-range-picker>
+    <date-range-picker [dateRangeChangeCallback]="onDateRangeChange.bind(this)"></date-range-picker>
     <mat-form-field>
       <mat-label>Workshop name</mat-label>
       <mat-select [(value)]="selectedWorkshop">
@@ -19,12 +19,19 @@
     </mat-form-field>
     <button (click)="onSearch()">Search</button>
   </div>
-
+  <div class="bottom-section">
+  @if (isLoadingResults) {
+    <div class="example-loading-shade">
+      @if (isLoadingResults) {
+        <mat-spinner></mat-spinner>
+      }
+    </div>
+  }
   <div class="bottom-section">
     <mat-table [dataSource]="data" class="mat-elevation-z8">
       <ng-container matColumnDef="time">
         <mat-header-cell *matHeaderCellDef> Time </mat-header-cell>
-        <mat-cell *matCellDef="let element"> {{element.time}} </mat-cell>
+        <mat-cell *matCellDef="let element"> <p>{{element.time | date:'yyyy-MM-dd HH:mm:ss' }}</p> </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="workshopName">

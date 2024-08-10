@@ -20,6 +20,9 @@ import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 import {AvailableTime, AvailableTimesService} from "./service/available-times.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ContactDataDialog} from "./components/contact-data-dialog/contact-data-dialog.component";
+import moment from "moment";
+import {MatProgressSpinner} from "@angular/material/progress-spinner";
+import {DatePipe} from "@angular/common";
 
 interface WorkshopName {
   value: string;
@@ -55,6 +58,8 @@ interface CarType {
     DateRangePickerComponent,
     MatSelect,
     MatOption,
+    MatProgressSpinner,
+    DatePipe,
   ],
   providers: [provideNativeDateAdapter()],
   styleUrls: ['./app.component.css']
@@ -64,7 +69,6 @@ export class AppComponent implements AfterViewInit {
   data: AvailableTime[] = [];
 
   isLoadingResults = true;
-  isRateLimitReached = false;
 
   constructor(private _httpClient: HttpClient, public dialog: MatDialog, private availableTimesService: AvailableTimesService) { }
 
@@ -95,7 +99,6 @@ export class AppComponent implements AfterViewInit {
   onDateRangeChange(startDate: string, endDate: string) {
     this.startDate = startDate;
     this.endDate = endDate;
-    console.log("startDate " + this.startDate + "; endDate " + endDate);
   }
 
   onSearch() {
@@ -107,13 +110,12 @@ export class AppComponent implements AfterViewInit {
 
     dialogRef.afterClosed().subscribe(contactInformation => {
       this.availableTimesService.sendBookRequest(id, contactInformation, workshopName)
-        .subscribe(availableTime => {console.log(availableTime)})
+        .subscribe(availableTime => this.loadAvailableTimes())
     });
+
   }
 
-
   private loadAvailableTimes() {
-    console.log("startDate " + this.startDate + "; endDate " + this.endDate);
     merge()
       .pipe(
         startWith({}),
@@ -128,7 +130,6 @@ export class AppComponent implements AfterViewInit {
         }),
         map(data => {
           this.isLoadingResults = false;
-          this.isRateLimitReached = data === null;
 
           if (data === null) {
             return [];

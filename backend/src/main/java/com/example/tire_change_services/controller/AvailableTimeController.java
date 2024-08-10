@@ -18,7 +18,6 @@ public class AvailableTimeController {
 
     @GetMapping("/getAvailableTimes")
     public ResponseEntity<List<AvailableTime>> getAvailableTimes(@RequestParam String from, @RequestParam String until, @RequestParam(required = false) String workshopName, @RequestParam(required = false) String carType) {
-       //TODO implement
         List<AvailableTime> availableTimes = workshopService.getAvailableTimes(from, until, workshopName, carType);
 
         return new ResponseEntity<>(availableTimes, HttpStatus.OK);

@@ -8,20 +8,15 @@ import com.example.tire_change_services.model.AvailableTimeXml;
 import com.example.tire_change_services.model.AvailableTimesResponseXml;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -43,15 +38,18 @@ public class LondonWorkshop implements IWorkshop {
 
     @Override
     public List<AvailableTime> getAvailableTimes(String from, String until, String workshopName, String carType) {
-        String url =  String.format("%s/api/v1/tire-change-times/available?from=%s&until=%s", workshops.getWorkshops().get("london").getUrl(), from, until); // Replace with your target URL
+        String formattedUntilDate = add1DayToDate(until);
+        String url =  String.format("%s/api/v1/tire-change-times/available?from=%s&until=%s", workshops.getWorkshops().get("london").getUrl(), from, formattedUntilDate); // Replace with your target URL
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         String xml = response.getBody();
         XmlMapper xmlMapper = new XmlMapper();
         List<AvailableTime> availableTimes = new ArrayList<>();
         try {
             AvailableTimesResponseXml availableTimesResponseXml = xmlMapper.readValue(xml, AvailableTimesResponseXml.class);
-            for (AvailableTimeXml availableTimeXml : availableTimesResponseXml.getAvailableTimes()) {
-                availableTimes.add(createAvailableTime(availableTimeXml));
+            if (availableTimesResponseXml.getAvailableTimes() != null) {
+                for (AvailableTimeXml availableTimeXml : availableTimesResponseXml.getAvailableTimes()) {
+                    availableTimes.add(createAvailableTime(availableTimeXml));
+                }
             }
 
         } catch (Exception ex){
@@ -59,6 +57,13 @@ public class LondonWorkshop implements IWorkshop {
             throw new RuntimeException("Failed to parse XML response", ex);
         }
         return availableTimes;
+    }
+
+    private String add1DayToDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localDate = LocalDate.parse(date, formatter);
+        LocalDate newDate = localDate.plusDays(1);
+        return newDate.format(formatter);
     }
 
     @Override

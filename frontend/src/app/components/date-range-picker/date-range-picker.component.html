@@ -7,7 +7,7 @@
     <input matEndDate
            placeholder="End date"
            #dateRangeEnd
-           (dateChange)="onDateRangeChange(dateRangeStart, dateRangeEnd)">
+           (dateChange)="this.onDateRangeChange(dateRangeStart, dateRangeEnd)">
   </mat-date-range-input>
   <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
