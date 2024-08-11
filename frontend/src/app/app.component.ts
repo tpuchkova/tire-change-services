@@ -18,11 +18,12 @@ import {HttpClient} from "@angular/common/http";
 import {merge, of as observableOf} from 'rxjs';
 import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 import {AvailableTime, AvailableTimesService} from "./service/available-times.service";
-import {MatDialog} from "@angular/material/dialog";
+import {MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {ContactDataDialog} from "./components/contact-data-dialog/contact-data-dialog.component";
 import moment from "moment";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {DatePipe} from "@angular/common";
+import {BookedTimeDialogComponent} from "./components/booked-time-dialog/booked-time-dialog.component";
 
 interface WorkshopName {
   value: string;
@@ -70,7 +71,7 @@ export class AppComponent implements AfterViewInit {
 
   isLoadingResults = true;
 
-  constructor(private _httpClient: HttpClient, public dialog: MatDialog, private availableTimesService: AvailableTimesService) { }
+  constructor(public dialog: MatDialog, private availableTimesService: AvailableTimesService) { }
 
   ngAfterViewInit() {
     this.loadAvailableTimes();
@@ -110,9 +111,29 @@ export class AppComponent implements AfterViewInit {
 
     dialogRef.afterClosed().subscribe(contactInformation => {
       this.availableTimesService.sendBookRequest(id, contactInformation, workshopName)
-        .subscribe(availableTime => this.loadAvailableTimes())
+        .subscribe({
+          // next: this.onBookingResponse,
+          next: availableTime => this.onBookingResponse(availableTime),
+          error: this.onBookingError,
+          complete: this.onBookingComplete
+        })
+    });
+  }
+
+  private onBookingResponse(availableTime: AvailableTime) {
+    const dialogRef = this.dialog.open(BookedTimeDialogComponent, {
+      data: availableTime,
     });
 
+    dialogRef.afterClosed().subscribe(() => this.loadAvailableTimes());
+  }
+
+  private onBookingError(error: string) {
+    console.log(error);
+  }
+
+  private onBookingComplete() {
+    console.log("Booking complete(hide progress circle)");
   }
 
   private loadAvailableTimes() {

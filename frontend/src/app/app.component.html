@@ -31,7 +31,7 @@
     <mat-table [dataSource]="data" class="mat-elevation-z8">
       <ng-container matColumnDef="time">
         <mat-header-cell *matHeaderCellDef> Time </mat-header-cell>
-        <mat-cell *matCellDef="let element"> <p>{{element.time | date:'yyyy-MM-dd HH:mm:ss' }}</p> </mat-cell>
+        <mat-cell *matCellDef="let element"> <p>{{element.time | date:'yyyy-MM-dd HH:mm:ss' :'UTC'}}</p> </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="workshopName">
