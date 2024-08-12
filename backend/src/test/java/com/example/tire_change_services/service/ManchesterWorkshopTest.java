@@ -8,9 +8,11 @@ import com.google.gson.Gson;
 import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,14 +26,18 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class ManchesterWorkshopTest {
-   private static final String CORRECT_RESPONSE_JSON = """
-       {
-        "id": 10,
-        "time": "2024-07-12T08:00:00Z",
-        "available": true
-    },
-""";
+    private static final String CORRECT_RESPONSE_JSON =
+            """
+                    [
+                        {
+                            "id": 1,
+                            "time": "2024-07-11T08:00:00Z",
+                            "available": true
+                        }
+                        ]
+                    """;
     @Mock
     private RestTemplate restTemplate;
 
@@ -41,7 +47,7 @@ public class ManchesterWorkshopTest {
     @InjectMocks
     private ManchesterWorkshop manchesterWorkshop;
 
-   // private Gson gson = new Gson();
+    // private Gson gson = new Gson();
 
 //    @BeforeEach
 //    public void setUp() {
@@ -53,7 +59,7 @@ public class ManchesterWorkshopTest {
         // given
         mockRestTemplateGetForEntity(CORRECT_RESPONSE_JSON, HttpStatus.OK);
 
-        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("london",
+        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("manchester",
                 WorkshopInfo.builder()
                         .url("correctUrl")
                         .name("manchester")
