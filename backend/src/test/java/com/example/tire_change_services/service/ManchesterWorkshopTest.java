@@ -47,15 +47,8 @@ public class ManchesterWorkshopTest {
     @InjectMocks
     private ManchesterWorkshop manchesterWorkshop;
 
-    // private Gson gson = new Gson();
-
-//    @BeforeEach
-//    public void setUp() {
-//        when(workshopInfo.getUrl()).thenReturn("http://test-url.com");
-//    }
-
     @Test
-    void shouldSuccessfullyParseResponse() {
+    void testGetAvailableTimes_shouldSuccessfullyParseResponse() {
         // given
         mockRestTemplateGetForEntity(CORRECT_RESPONSE_JSON, HttpStatus.OK);
 
@@ -72,9 +65,11 @@ public class ManchesterWorkshopTest {
 
         // then
         assertNotNull(availableTimes);
-//        assertEquals("london", availableTimes.get(0).getWorkshopName());
-//        assertEquals("address", availableTimes.get(0).getAddress());
-//        assertEquals("passenger car", availableTimes.get(0).getCarTypes());
+        assertEquals("1", availableTimes.get(0).getId());
+        assertEquals("2024-07-11T08:00:00Z", availableTimes.get(0).getTime());
+        assertEquals("manchester", availableTimes.get(0).getWorkshopName());
+        assertEquals("address", availableTimes.get(0).getAddress());
+        assertEquals("passenger car", availableTimes.get(0).getCarTypes());
     }
 
     private void mockRestTemplateGetForEntity(String response, HttpStatus status) {
@@ -147,33 +142,40 @@ public class ManchesterWorkshopTest {
     }
 
     @Test
-    public void testBookTime_Success() {
-        // Define test inputs
+    public void testBookTime_shouldSuccessfullyParseResponse() {
         String id = "123";
         String contactInformation = "contact@example.com";
-        String url = String.format("%s/api/v2/tire-change-times/%s/booking", "http://test-url.com", id);
 
-        // Mock the REST response
-        String jsonResponse = "{\"available\": true, \"startTime\": \"10:00\", \"endTime\": \"11:00\"}";
-        ResponseEntity<String> responseEntity = new ResponseEntity<>(jsonResponse, HttpStatus.OK);
-        when(restTemplate.postForEntity(eq(url), any(HttpEntity.class), eq(String.class)))
-                .thenReturn(responseEntity);
+        String jsonResponse = """
+                {
+                    "id": 43,
+                    "time": "2024-07-17T14:00:00Z",
+                    "available": false
+                }
+                """;
+
+
+        when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(jsonResponse, HttpStatus.OK));
+
+        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("manchester",
+                WorkshopInfo.builder()
+                        .url("correctUrl")
+                        .name("manchester")
+                        .address("address")
+                        .carTypes("passenger car")
+                        .build()));
 
         // Call the method under test
-        AvailableTime result = manchesterWorkshop.bookTime(id, contactInformation);
+        AvailableTime availableTime = manchesterWorkshop.bookTime(id, contactInformation);
 
         // Assertions
-//        assertNotNull(result);
-//        assertEquals("10:00", result.getStartTime());
-//        assertEquals("11:00", result.getEndTime());
-//        assertTrue(result.isAvailable());
-
-        // Verify the request entity
-        ArgumentCaptor<HttpEntity<ContactInformationRequestBody>> captor = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).postForEntity(eq(url), captor.capture(), eq(String.class));
-        HttpEntity<ContactInformationRequestBody> requestEntity = captor.getValue();
-        assertEquals(MediaType.APPLICATION_JSON, requestEntity.getHeaders().getContentType());
-        assertEquals(contactInformation, requestEntity.getBody().getContactInformation());
+        assertNotNull(availableTime);
+        assertEquals("43", availableTime.getId());
+        assertEquals("2024-07-17T14:00:00Z", availableTime.getTime());
+        assertEquals("manchester", availableTime.getWorkshopName());
+        assertEquals("address", availableTime.getAddress());
+        assertEquals("passenger car", availableTime.getCarTypes());
     }
 
     @Test

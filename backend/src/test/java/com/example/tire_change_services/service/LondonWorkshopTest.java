@@ -49,14 +49,8 @@ public class LondonWorkshopTest {
     @InjectMocks
     private LondonWorkshop londonWorkshop;
 
-//    @BeforeEach
-//    public void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//        when(workshopInfo.getUrl()).thenReturn("http://test-url.com");
-//    }
-
     @Test
-    void shouldSuccessfullyParseResponse() {
+    void testGetAvailableTimes_shouldSuccessfullyParseResponse() {
         // given
         mockRestTemplateGetForEntity(CORRECT_RESPONSE_XML, HttpStatus.OK);
 
@@ -82,23 +76,6 @@ public class LondonWorkshopTest {
     }
 
     @Test
-    public void testGetAvailableTimes_Success() throws Exception {
-        String xmlResponse = "<AvailableTimesResponseXml>...</AvailableTimesResponseXml>";
-        when(restTemplate.getForEntity(anyString(), eq(String.class)))
-                .thenReturn(new ResponseEntity<>(xmlResponse, HttpStatus.OK));
-
-        XmlMapper xmlMapper = new XmlMapper();
-        AvailableTimesResponseXml availableTimesResponseXml = xmlMapper.readValue(xmlResponse, AvailableTimesResponseXml.class);
-        when(xmlMapper.readValue(anyString(), eq(AvailableTimesResponseXml.class)))
-                .thenReturn(availableTimesResponseXml);
-
-        List<AvailableTime> availableTimes = londonWorkshop.getAvailableTimes("2024-07-26", "2024-07-27", "london", "passenger car");
-
-        assertNotNull(availableTimes);
-      //  assertEquals(availableTimes.get(0).getWorkshopName(), "london");
-    }
-
-    @Test
     public void testGetAvailableTimes_Error() {
         // Mock an error response from the REST call
         when(restTemplate.getForEntity(anyString(), eq(String.class)))
@@ -111,28 +88,40 @@ public class LondonWorkshopTest {
     }
 
     @Test
-    public void testBookTime_Success() throws JsonProcessingException {
+    public void testBookTime_shouldSuccessfullyParseResponse() throws JsonProcessingException {
         // Define test inputs
         String id = "123";
         String contactInformation = "contact@example.com";
 
         // Mock the REST response
-        String xmlResponse = "<AvailableTimeXml>...</AvailableTimeXml>";
-        ResponseEntity<String> mockResponse = new ResponseEntity<>(xmlResponse, HttpStatus.OK);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class)))
-                .thenReturn(mockResponse);
+        String xmlResponse = """
+                <tireChangeBookingResponse>
+                    <uuid>3ea08261-2132-4fc3-8659-84a1daab7223</uuid>
+                    <time>2024-08-12T15:00:00Z</time>
+                </tireChangeBookingResponse>
+                """;
 
-        // Mock the parsing result
-        XmlMapper xmlMapper = new XmlMapper();
-        AvailableTimeXml availableTimeXml = new AvailableTimeXml(); // Populate with test data as needed
-        when(xmlMapper.readValue(xmlResponse, AvailableTimeXml.class)).thenReturn(availableTimeXml);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(xmlResponse, HttpStatus.OK));
+
+        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("london",
+                WorkshopInfo.builder()
+                        .url("correctUrl")
+                        .name("london")
+                        .address("address")
+                        .carTypes("passenger car")
+                        .build()));
 
         // Call the method under test
-        AvailableTime result = londonWorkshop.bookTime(id, contactInformation);
+        AvailableTime availableTime = londonWorkshop.bookTime(id, contactInformation);
 
         // Assertions
-        assertNotNull(result);
-        // Additional assertions to verify the result
+        assertNotNull(availableTime);
+        assertEquals("3ea08261-2132-4fc3-8659-84a1daab7223", availableTime.getId());
+        assertEquals("2024-08-12T15:00:00Z", availableTime.getTime());
+        assertEquals("london", availableTime.getWorkshopName());
+        assertEquals("address", availableTime.getAddress());
+        assertEquals("passenger car", availableTime.getCarTypes());
     }
 
     private void mockRestTemplateGetForEntity(String response, HttpStatus status) {
