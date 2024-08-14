@@ -28,4 +28,10 @@ public class AvailableTimeController {
         AvailableTime availableTime = workshopService.bookTime(id, workshopName, contactInformation);
         return new ResponseEntity<>(availableTime, HttpStatus.OK);
     }
+
+//    @GetMapping("/getWorkshopsAndCarTypes")
+//    public Set<> bookAvailableTimeById() {
+//        AvailableTime availableTime = workshopService.bookTime(id, workshopName, contactInformation);
+//        return new ResponseEntity<>(availableTime, HttpStatus.OK);
+//    }
 }

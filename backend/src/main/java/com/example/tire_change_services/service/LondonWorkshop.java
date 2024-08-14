@@ -39,7 +39,7 @@ public class LondonWorkshop implements IWorkshop {
     @Override
     public List<AvailableTime> getAvailableTimes(String from, String until, String workshopName, String carType) {
         String formattedUntilDate = add1DayToDate(until);
-        String url =  String.format("%s/api/v1/tire-change-times/available?from=%s&until=%s", workshops.getWorkshops().get("london").getUrl(), from, formattedUntilDate); // Replace with your target URL
+        String url =  String.format("%s/api/v1/tire-change-times/available?from=%s&until=%s", workshops.getWorkshops().get("london").getUrl(), from, formattedUntilDate);
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         String xml = response.getBody();
         XmlMapper xmlMapper = new XmlMapper();
