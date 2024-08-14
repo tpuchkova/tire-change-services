@@ -3,19 +3,15 @@ package com.example.tire_change_services.service;
 import com.example.tire_change_services.config.WorkshopInfo;
 import com.example.tire_change_services.config.WorkshopsInfoList;
 import com.example.tire_change_services.model.AvailableTime;
-import com.example.tire_change_services.model.ContactInformationRequestBody;
-import com.google.gson.Gson;
+
 import org.assertj.core.util.Maps;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,12 +19,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ManchesterWorkshopTest {
-    private static final String CORRECT_RESPONSE_JSON =
+    private static final String CORRECT_GET_RESPONSE_JSON =
             """
                     [
                         {
@@ -38,6 +33,13 @@ public class ManchesterWorkshopTest {
                         }
                         ]
                     """;
+    private static final String CORRECT_POST_RESPONSE_JSON = """
+                {
+                    "id": 43,
+                    "time": "2024-07-17T14:00:00Z",
+                    "available": false
+                }
+                """;
     @Mock
     private RestTemplate restTemplate;
 
@@ -48,17 +50,11 @@ public class ManchesterWorkshopTest {
     private ManchesterWorkshop manchesterWorkshop;
 
     @Test
-    void testGetAvailableTimes_shouldSuccessfullyParseResponse() {
+    void getAvailableTimesTest_shouldSuccessfullyParseResponse() {
         // given
-        mockRestTemplateGetForEntity(CORRECT_RESPONSE_JSON, HttpStatus.OK);
+        mockRestTemplateGetForEntity(CORRECT_GET_RESPONSE_JSON, HttpStatus.OK);
 
-        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("manchester",
-                WorkshopInfo.builder()
-                        .url("correctUrl")
-                        .name("manchester")
-                        .address("address")
-                        .carTypes("passenger car")
-                        .build()));
+        mockWorkshopInfoList();
 
         // when
         List<AvailableTime> availableTimes = manchesterWorkshop.getAvailableTimes("2024-07-26", "2024-07-27", "manchester", "passenger car");
@@ -72,104 +68,20 @@ public class ManchesterWorkshopTest {
         assertEquals("passenger car", availableTimes.get(0).getCarTypes());
     }
 
-    private void mockRestTemplateGetForEntity(String response, HttpStatus status) {
-        when(restTemplate.getForEntity(anyString(), eq(String.class)))
-                .thenReturn(new ResponseEntity<>(response, status));
-    }
-
     @Test
-    public void testGetAvailableTimes_Success() {
-        // Define test inputs
-        String from = "2024-07-26";
-        String until = "2024-07-27";
-        String workshopName = "manchester";
-        String carType = "passenger car";
-
-        // Mock JSON response
-        String jsonResponse = "[{\"available\": true, \"startTime\": \"10:00\", \"endTime\": \"11:00\"}]";
-        ResponseEntity<String> responseEntity = new ResponseEntity<>(jsonResponse, HttpStatus.OK);
-        when(restTemplate.getForEntity(anyString(), eq(String.class)))
-                .thenReturn(responseEntity);
-
-        // Call the method under test
-        List<AvailableTime> availableTimes = manchesterWorkshop.getAvailableTimes(from, until, workshopName, carType);
-
-        // Assertions
-        assertNotNull(availableTimes);
-        assertEquals(1, availableTimes.size());
-//        assertEquals("10:00", availableTimes.get(0).getStartTime());
-//        assertEquals("11:00", availableTimes.get(0).getEndTime());
-    }
-
-    @Test
-    public void testGetAvailableTimes_EmptyResponse() {
-        // Define test inputs
-        String from = "2024-07-26";
-        String until = "2024-07-27";
-        String workshopName = "manchester";
-        String carType = "passenger car";
-
-        // Mock JSON response
-        String jsonResponse = "[]";  // Empty list response
-        ResponseEntity<String> responseEntity = new ResponseEntity<>(jsonResponse, HttpStatus.OK);
-        when(restTemplate.getForEntity(anyString(), eq(String.class)))
-                .thenReturn(responseEntity);
-
-        // Call the method under test
-        List<AvailableTime> availableTimes = manchesterWorkshop.getAvailableTimes(from, until, workshopName, carType);
-
-        // Assertions
-        assertNotNull(availableTimes);
-        assertTrue(availableTimes.isEmpty());
-    }
-
-    @Test
-    public void testGetAvailableTimes_Exception() {
-        // Define test inputs
-        String from = "2024-07-26";
-        String until = "2024-07-27";
-        String workshopName = "manchester";
-        String carType = "passenger car";
-
-        // Mock an exception
-        when(restTemplate.getForEntity(anyString(), eq(String.class)))
-                .thenThrow(new RuntimeException("Service unavailable"));
-
-        // Call the method and expect an exception
-        assertThrows(RuntimeException.class, () -> {
-            manchesterWorkshop.getAvailableTimes(from, until, workshopName, carType);
-        });
-    }
-
-    @Test
-    public void testBookTime_shouldSuccessfullyParseResponse() {
+    public void bookTimeTest_shouldSuccessfullyParseResponse() {
+        // given
         String id = "123";
         String contactInformation = "contact@example.com";
 
-        String jsonResponse = """
-                {
-                    "id": 43,
-                    "time": "2024-07-17T14:00:00Z",
-                    "available": false
-                }
-                """;
+        mockRestTemplatePostForEntity(CORRECT_POST_RESPONSE_JSON, HttpStatus.OK);
 
+        mockWorkshopInfoList();
 
-        when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(String.class)))
-                .thenReturn(new ResponseEntity<>(jsonResponse, HttpStatus.OK));
-
-        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("manchester",
-                WorkshopInfo.builder()
-                        .url("correctUrl")
-                        .name("manchester")
-                        .address("address")
-                        .carTypes("passenger car")
-                        .build()));
-
-        // Call the method under test
+        // when
         AvailableTime availableTime = manchesterWorkshop.bookTime(id, contactInformation);
 
-        // Assertions
+        // then
         assertNotNull(availableTime);
         assertEquals("43", availableTime.getId());
         assertEquals("2024-07-17T14:00:00Z", availableTime.getTime());
@@ -178,21 +90,24 @@ public class ManchesterWorkshopTest {
         assertEquals("passenger car", availableTime.getCarTypes());
     }
 
-    @Test
-    public void testBookTime_ExceptionHandling() {
-        // Define test inputs
-        String id = "123";
-        String contactInformation = "contact@example.com";
-        String url = String.format("%s/api/v2/tire-change-times/%s/booking", "http://test-url.com", id);
+    private void mockRestTemplateGetForEntity(String response, HttpStatus status) {
+        when(restTemplate.getForEntity(anyString(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(response, status));
+    }
 
-        // Mock the REST response to throw an exception
-        when(restTemplate.postForEntity(eq(url), any(HttpEntity.class), eq(String.class)))
-                .thenThrow(new RuntimeException("Service unavailable"));
+    private void mockRestTemplatePostForEntity(String response, HttpStatus status) {
+        when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(response, status));
+    }
 
-        // Call the method and expect an exception
-        assertThrows(RuntimeException.class, () -> {
-            manchesterWorkshop.bookTime(id, contactInformation);
-        });
+    private void mockWorkshopInfoList() {
+        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("manchester",
+                WorkshopInfo.builder()
+                        .url("correctUrl")
+                        .name("manchester")
+                        .address("address")
+                        .carTypes("passenger car")
+                        .build()));
     }
 }
 

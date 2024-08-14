@@ -52,19 +52,12 @@ public class LondonWorkshopTest {
         // given
         mockRestTemplateGetForEntity(CORRECT_GET_RESPONSE_XML, HttpStatus.OK);
 
-        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("london",
-                WorkshopInfo.builder()
-                        .url("correctUrl")
-                        .name("london")
-                        .address("address")
-                        .carTypes("passenger car")
-                .build()));
+        mockWorkshopInfoList();
 
         // when
         List<AvailableTime> availableTimes = londonWorkshop.getAvailableTimes("2024-07-26", "2024-07-27", "london", "passenger car");
 
         // then
-
         assertNotNull(availableTimes);
         assertEquals("68f2cacb-a591-4e6c-96af-2d4854372ce6", availableTimes.get(0).getId());
         assertEquals("2024-07-11T11:00:00Z", availableTimes.get(0).getTime());
@@ -81,13 +74,7 @@ public class LondonWorkshopTest {
 
         mockRestTemplateExchange(CORRECT_PUT_RESPONSE_XML, HttpStatus.OK);
 
-        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("london",
-                WorkshopInfo.builder()
-                        .url("correctUrl")
-                        .name("london")
-                        .address("address")
-                        .carTypes("passenger car")
-                        .build()));
+        mockWorkshopInfoList();
 
         // when
         AvailableTime availableTime = londonWorkshop.bookTime(id, contactInformation);
@@ -99,6 +86,16 @@ public class LondonWorkshopTest {
         assertEquals("london", availableTime.getWorkshopName());
         assertEquals("address", availableTime.getAddress());
         assertEquals("passenger car", availableTime.getCarTypes());
+    }
+
+    private void mockWorkshopInfoList() {
+        when(workshopsInfoList.getWorkshops()).thenReturn(Maps.newHashMap("london",
+                WorkshopInfo.builder()
+                        .url("url")
+                        .name("london")
+                        .address("address")
+                        .carTypes("passenger car")
+                        .build()));
     }
 
     private void mockRestTemplateExchange(String response, HttpStatus status) {
