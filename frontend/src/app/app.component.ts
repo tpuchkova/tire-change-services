@@ -110,13 +110,14 @@ export class AppComponent implements AfterViewInit {
     const dialogRef = this.dialog.open(ContactDataDialog);
 
     dialogRef.afterClosed().subscribe(contactInformation => {
-      this.availableTimesService.sendBookRequest(id, contactInformation, workshopName)
-        .subscribe({
-          // next: this.onBookingResponse,
-          next: availableTime => this.onBookingResponse(availableTime),
-          error: this.onBookingError,
-          complete: this.onBookingComplete
-        })
+      if (contactInformation) {
+        this.availableTimesService.sendBookRequest(id, contactInformation, workshopName)
+          .subscribe({
+            next: availableTime => this.onBookingResponse(availableTime),
+            error: this.onBookingError,
+            complete: this.onBookingComplete
+          })
+      }
     });
   }
 
