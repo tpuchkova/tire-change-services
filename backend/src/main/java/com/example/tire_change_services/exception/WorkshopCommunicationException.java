@@ -5,9 +5,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 
 @Getter
-@RequiredArgsConstructor
 public class WorkshopCommunicationException extends RuntimeException {
     private final HttpStatusCode statusCode;
     private final String errorCode;
     private final String errorMessage;
+
+    public WorkshopCommunicationException(HttpStatusCode statusCode, String errorCode, String errorMessage){
+        super(errorMessage);
+        this.statusCode = statusCode;
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+    }
 }

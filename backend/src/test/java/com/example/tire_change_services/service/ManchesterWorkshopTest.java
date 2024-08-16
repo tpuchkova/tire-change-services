@@ -2,8 +2,10 @@ package com.example.tire_change_services.service;
 
 import com.example.tire_change_services.config.WorkshopInfo;
 import com.example.tire_change_services.config.WorkshopsInfoList;
+import com.example.tire_change_services.exception.WorkshopCommunicationException;
 import com.example.tire_change_services.model.AvailableTime;
 
+import com.example.tire_change_services.model.WorkshopError;
 import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,15 +13,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ManchesterWorkshopTest {
@@ -40,6 +46,12 @@ public class ManchesterWorkshopTest {
                     "available": false
                 }
                 """;
+    private static final String ERROR_RESPONSE_JSON = """
+            {
+                "code": "22",
+                "message": "tire change time 207 is unavailable"
+            }
+            """;
     @Mock
     private RestTemplate restTemplate;
 
@@ -52,12 +64,17 @@ public class ManchesterWorkshopTest {
     @Test
     void getAvailableTimesTest_shouldSuccessfullyParseResponse() {
         // given
+        String dateFrom = "2024-07-26";
+        String dateUntil = "2024-07-27";
+        String workshopName = "manchester";
+        String carType = "passenger car";
+
         mockRestTemplateGetForEntity(CORRECT_GET_RESPONSE_JSON, HttpStatus.OK);
 
         mockWorkshopInfoList();
 
         // when
-        List<AvailableTime> availableTimes = manchesterWorkshop.getAvailableTimes("2024-07-26", "2024-07-27", "manchester", "passenger car");
+        List<AvailableTime> availableTimes = manchesterWorkshop.getAvailableTimes(dateFrom, dateUntil, workshopName, carType);
 
         // then
         assertNotNull(availableTimes);
@@ -69,9 +86,35 @@ public class ManchesterWorkshopTest {
     }
 
     @Test
+    void getAvailableTimesTest_ThrowsWorkshopCommunicationException() {
+        // given
+        String dateFrom = "2024-07-26";
+        String dateUntil = "2024-07-27";
+        String workshopName = "london";
+        String carType = "passenger car";
+
+        when(restTemplate.getForEntity(anyString(), eq(String.class)))
+                .thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "text", ERROR_RESPONSE_JSON.getBytes(), StandardCharsets.UTF_8));
+
+        mockWorkshopInfoList();
+
+        // when
+        WorkshopCommunicationException thrown = assertThrows(
+                WorkshopCommunicationException.class,
+                () -> manchesterWorkshop.getAvailableTimes(dateFrom, dateUntil, workshopName, carType),
+                "Expected HttpClientErrorException to throw, but it didn't"
+        );
+
+        // then
+        assertEquals("tire change time 207 is unavailable", thrown.getMessage());
+        assertEquals("22", thrown.getErrorCode());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, thrown.getStatusCode());
+    }
+
+    @Test
     public void bookTimeTest_shouldSuccessfullyParseResponse() {
         // given
-        String id = "123";
+        String id = "43";
         String contactInformation = "contact@example.com";
 
         mockRestTemplatePostForEntity(CORRECT_POST_RESPONSE_JSON, HttpStatus.OK);
@@ -88,6 +131,30 @@ public class ManchesterWorkshopTest {
         assertEquals("manchester", availableTime.getWorkshopName());
         assertEquals("address", availableTime.getAddress());
         assertEquals("passenger car", availableTime.getCarTypes());
+    }
+
+    @Test
+    void bookTimeTest_ThrowsWorkshopCommunicationException() {
+        // given
+        String id = "43";
+        String contactInformation = "contact@example.com";
+
+        when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(String.class)))
+                .thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "text", ERROR_RESPONSE_JSON.getBytes(), StandardCharsets.UTF_8));
+
+        mockWorkshopInfoList();
+
+        // when
+        WorkshopCommunicationException thrown = assertThrows(
+                WorkshopCommunicationException.class,
+                () -> manchesterWorkshop.bookTime(id, contactInformation),
+                "Expected HttpClientErrorException to throw, but it didn't"
+        );
+
+        // then
+        assertEquals("tire change time 207 is unavailable", thrown.getMessage());
+        assertEquals("22", thrown.getErrorCode());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, thrown.getStatusCode());
     }
 
     private void mockRestTemplateGetForEntity(String response, HttpStatus status) {

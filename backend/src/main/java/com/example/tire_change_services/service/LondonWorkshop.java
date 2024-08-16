@@ -11,6 +11,7 @@ import com.example.tire_change_services.model.WorkshopError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -21,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LondonWorkshop implements IWorkshop {
@@ -43,8 +45,8 @@ public class LondonWorkshop implements IWorkshop {
     public List<AvailableTime> getAvailableTimes(String from, String until, String workshopName, String carType) {
         String formattedUntilDate = add1DayToDate(until);
         String url = String.format("%s/api/v1/tire-change-times/available?from=%s&until=%s", workshops.getWorkshops().get("london").getUrl(), from, formattedUntilDate);
-        try{
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
             String xml = response.getBody();
             XmlMapper xmlMapper = new XmlMapper();
             List<AvailableTime> availableTimes = new ArrayList<>();
@@ -57,7 +59,7 @@ public class LondonWorkshop implements IWorkshop {
             }
 
             return availableTimes;
-        } catch (HttpStatusCodeException e){
+        } catch (HttpStatusCodeException e) {
             throwException(e);
         }
         return List.of();
@@ -71,26 +73,29 @@ public class LondonWorkshop implements IWorkshop {
         headers.setContentType(MediaType.APPLICATION_XML);
         HttpEntity<String> request = new HttpEntity<String>(PUT_REQUEST_TEMPLATE.formatted(contactInformation), headers);
 
-        try{
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
             String xml = response.getBody();
             XmlMapper xmlMapper = new XmlMapper();
             AvailableTimeXml availableTimeXml = getAvailableTimeXml(xmlMapper, xml);
             return createAvailableTime(availableTimeXml);
-        } catch (HttpStatusCodeException e){
+        } catch (HttpStatusCodeException e) {
             throwException(e);
         }
         return null;
     }
 
     private void throwException(HttpStatusCodeException e) {
-        try {
             XmlMapper xmlMapper = new XmlMapper();
-            WorkshopError error = xmlMapper.readValue(e.getResponseBodyAsString(), WorkshopError.class);
-            throw new WorkshopCommunicationException(e.getStatusCode(), error.getCode(), error.getMessage());
-        } catch (Exception ex) {
+
+        WorkshopError error;
+        try {
+            error = xmlMapper.readValue(e.getResponseBodyAsString(), WorkshopError.class);
+        } catch (JsonProcessingException jsonProcessingException) {
+            log.error("cannot parse xml response", jsonProcessingException);
             throw new WorkshopCommunicationException(HttpStatus.UNPROCESSABLE_ENTITY, "bad_workshop_response", "Bad workshop response");
         }
+        throw new WorkshopCommunicationException(e.getStatusCode(), error.getCode(), error.getMessage());
     }
 
     private AvailableTime createAvailableTime(AvailableTimeXml availableTimeXml) {
@@ -102,6 +107,7 @@ public class LondonWorkshop implements IWorkshop {
                 .carTypes(workshops.getWorkshops().get("london").getCarTypes())
                 .build();
     }
+
     private AvailableTimeXml getAvailableTimeXml(XmlMapper xmlMapper, String xml) {
         try {
             return xmlMapper.readValue(xml, AvailableTimeXml.class);
