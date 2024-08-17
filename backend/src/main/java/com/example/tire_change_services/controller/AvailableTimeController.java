@@ -4,6 +4,7 @@ import com.example.tire_change_services.exception.WorkshopCommunicationException
 import com.example.tire_change_services.model.AvailableTime;
 import com.example.tire_change_services.model.AvailableTimeXml;
 import com.example.tire_change_services.model.WorkshopError;
+import com.example.tire_change_services.model.WorkshopsAndCarTypes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +38,8 @@ public class AvailableTimeController {
         return new ResponseEntity<>(workshopError, workshopCommunicationException.getStatusCode());
     }
 
-//    @GetMapping("/getWorkshopsAndCarTypes")
-//    public Set<> bookAvailableTimeById() {
-//        AvailableTime availableTime = workshopService.bookTime(id, workshopName, contactInformation);
-//        return new ResponseEntity<>(availableTime, HttpStatus.OK);
-//    }
+    @GetMapping("/getWorkshopsAndCarTypes")
+    public WorkshopsAndCarTypes getWorkshopsAndCarTypes() {
+        return workshopService.getWorkshopsAndCarTypes();
+    }
 }

@@ -17,9 +17,10 @@ import {MatSelect} from "@angular/material/select";
 import {HttpClient} from "@angular/common/http";
 import {merge, of as observableOf} from 'rxjs';
 import {catchError, map, startWith, switchMap} from 'rxjs/operators';
-import {AvailableTime, AvailableTimesService} from "./service/available-times.service";
+import {AvailableTime, AvailableTimesService, NameValue} from "./service/available-times.service";
 import {MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {ContactDataDialog} from "./components/contact-data-dialog/contact-data-dialog.component";
+import {ErrorComponent} from "./components/error/error.component";
 import moment from "moment";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {DatePipe} from "@angular/common";
@@ -66,7 +67,8 @@ interface CarType {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements AfterViewInit {
-  displayedColumns: string[] = ['time', 'workshopName', 'carType', 'address', 'book'];
+  readonly nameValueAll: NameValue = {name: 'All', value: 'all'};
+  readonly displayedColumns: string[] = ['time', 'workshopName', 'carType', 'address', 'book'];
   data: AvailableTime[] = [];
 
   isLoadingResults = true;
@@ -75,6 +77,11 @@ export class AppComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.loadAvailableTimes();
+    this.availableTimesService.getWorkshopsAndCarTypes()
+      .subscribe(workshopsAndCarTypes => {
+        this.workshopNames = [this.nameValueAll, ...workshopsAndCarTypes.workshops];
+        this.carTypes = [this.nameValueAll, ...workshopsAndCarTypes.carTypes]
+      })
   }
 
   @Input()
@@ -85,16 +92,11 @@ export class AppComponent implements AfterViewInit {
   startDate: string = "";
   endDate: string = "";
 
-
-  workshopNames: WorkshopName[] = [
-    {value: 'all', viewValue: 'All'},
-    {value: 'london', viewValue: 'London'},
-    {value: 'manchester', viewValue: 'Manchester'},
+  workshopNames: NameValue[] = [
+    this.nameValueAll,
   ];
-  carTypes: CarType[] = [
-    {value: 'all', viewValue: 'All'},
-    {value: 'passenger car', viewValue: 'Passenger car'},
-    {value: 'truck', viewValue: 'Truck'},
+  carTypes: NameValue[] = [
+    this.nameValueAll,
   ];
 
   onDateRangeChange(startDate: string, endDate: string) {
@@ -114,8 +116,7 @@ export class AppComponent implements AfterViewInit {
         this.availableTimesService.sendBookRequest(id, contactInformation, workshopName)
           .subscribe({
             next: availableTime => this.onBookingResponse(availableTime),
-            error: this.onBookingError,
-            complete: this.onBookingComplete
+            error: err => this.onBookingError(err),
           })
       }
     });
@@ -130,11 +131,8 @@ export class AppComponent implements AfterViewInit {
   }
 
   private onBookingError(error: string) {
-    console.log(error);
-  }
-
-  private onBookingComplete() {
-    console.log("Booking complete(hide progress circle)");
+    const dialogRef = this.dialog.open(ErrorComponent);
+    dialogRef.afterClosed().subscribe(() => this.loadAvailableTimes());
   }
 
   private loadAvailableTimes() {

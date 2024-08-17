@@ -1,14 +1,14 @@
 package com.example.tire_change_services.service;
 
 import com.example.tire_change_services.model.AvailableTime;
+import com.example.tire_change_services.model.NameValue;
+import com.example.tire_change_services.model.WorkshopsAndCarTypes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -65,5 +65,20 @@ public class WorkshopService {
                 .filter(ws -> workshopName.equals(ws.getWorkshopInfo().getName()))
                 .findAny()
                 .orElseThrow(IllegalArgumentException::new);
+    }
+
+    public WorkshopsAndCarTypes getWorkshopsAndCarTypes() {
+        Set<NameValue> workshopNames = new HashSet<>();
+        Set<NameValue> carTypes = new HashSet<>();
+        for (IWorkshop workshop : workshops) {
+            workshopNames.add(new NameValue(StringUtils.capitalize(workshop.getWorkshopInfo().getName()), workshop.getWorkshopInfo().getName()));
+
+            String[] parts = workshop.getWorkshopInfo().getCarTypes().split(",");
+            for (String part : parts) {
+                carTypes.add(new NameValue(StringUtils.capitalize(part), part));
+            }
+        }
+
+        return new WorkshopsAndCarTypes(workshopNames, carTypes);
     }
 }

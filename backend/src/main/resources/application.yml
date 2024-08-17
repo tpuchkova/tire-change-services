@@ -4,7 +4,7 @@ workshops-info-list:
     manchester:
       name: "manchester"
       url: "http://localhost:9004/"
-      carTypes: "passenger car, truck"
+      carTypes: "passenger car,truck"
       address: "14 Bury New Rd"
     london:
       name: "london"

@@ -5,7 +5,7 @@
       <mat-label>Workshop name</mat-label>
       <mat-select [(value)]="selectedWorkshop">
         @for (workshopName of workshopNames; track workshopName) {
-          <mat-option [value]="workshopName.value">{{workshopName.viewValue}}</mat-option>
+          <mat-option [value]="workshopName.value">{{workshopName.name}}</mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -13,7 +13,7 @@
       <mat-label>Car type</mat-label>
       <mat-select [(value)]="selectedCarType">
         @for (carType of carTypes; track carType) {
-          <mat-option [value]="carType.value">{{carType.viewValue}}</mat-option>
+          <mat-option [value]="carType.value">{{carType.name}}</mat-option>
         }
       </mat-select>
     </mat-form-field>

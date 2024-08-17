@@ -51,13 +51,26 @@ export class AvailableTimesService {
       requestBody,
       {params})
   }
+    getWorkshopsAndCarTypes(): Observable<WorkshopsAndCarTypes> {
+      return this._httpClient.get<WorkshopsAndCarTypes>("http://localhost:9090/getWorkshopsAndCarTypes")
+    }
 }
 
 export interface AvailableTime {
-  id: string
+  id: string;
   time: string;
   workshopName: string;
   address: string;
   carType: string;
+}
+
+export interface NameValue {
+  name: string;
+  value: string;
+}
+
+export interface WorkshopsAndCarTypes {
+  workshops: NameValue[];
+  carTypes: NameValue[];
 }
 
