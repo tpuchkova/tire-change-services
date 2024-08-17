@@ -1,7 +1,6 @@
 package com.example.tire_change_services.service;
 
 import com.example.tire_change_services.config.WorkshopInfo;
-import com.example.tire_change_services.config.WorkshopsInfoList;
 import com.example.tire_change_services.exception.WorkshopCommunicationException;
 import com.example.tire_change_services.model.AvailableTime;
 

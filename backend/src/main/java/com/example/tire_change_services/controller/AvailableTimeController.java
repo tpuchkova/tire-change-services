@@ -2,7 +2,6 @@ package com.example.tire_change_services.controller;
 
 import com.example.tire_change_services.exception.WorkshopCommunicationException;
 import com.example.tire_change_services.model.AvailableTime;
-import com.example.tire_change_services.model.AvailableTimeXml;
 import com.example.tire_change_services.model.WorkshopError;
 import com.example.tire_change_services.model.WorkshopsAndCarTypes;
 import lombok.RequiredArgsConstructor;
