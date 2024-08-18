@@ -3,14 +3,14 @@ package com.example.tire_change_services.service;
 import com.example.tire_change_services.config.WorkshopInfo;
 import com.example.tire_change_services.model.AvailableTime;
 
+import com.example.tire_change_services.model.NameValue;
+import com.example.tire_change_services.model.WorkshopsAndCarTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -96,6 +96,32 @@ public class WorkshopServiceTest {
 
         // then
         assertEquals(availableTime, result);
+    }
+
+    @Test
+    public void getWorkshopsAndCarTypesTest_Success() {
+        // given
+        mockLondonWorkshopInfo();
+        mockManchesterWorkshopInfo();
+
+        NameValue workshop1 = new NameValue("London", "london");
+        NameValue workshop2 = new NameValue("Manchester", "manchester");
+
+        NameValue carType1 = new NameValue("Passenger car", "passenger car");
+
+        Set<NameValue> workshops = new HashSet<>();
+        workshops.add(workshop1);
+        workshops.add(workshop2);
+
+        Set<NameValue> carTypes = new HashSet<>();
+        carTypes.add(carType1);
+
+        // when
+        WorkshopsAndCarTypes result = workshopService.getWorkshopsAndCarTypes();
+
+        // then
+        assertEquals(workshops, result.getWorkshops());
+        assertEquals(carTypes, result.getCarTypes());
     }
 
     private void mockManchesterWorkshopInfo() {
