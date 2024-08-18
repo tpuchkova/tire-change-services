@@ -2,7 +2,6 @@
 This is Springboot application with Angular frontend.
 
 ## Prerequisites
-- **Docker Desktop** https://www.docker.com/products/docker-desktop
 - **Intellij IDEA** or similar IDE https://www.jetbrains.com/idea/download/?section=windows
 
 ## Installing&Running
